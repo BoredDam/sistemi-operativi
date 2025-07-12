@@ -1,0 +1,1 @@
+# Repo per appunti di Sistemi Operativi (teoria)
