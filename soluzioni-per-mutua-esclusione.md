@@ -254,4 +254,10 @@ Soluzioni con busy waiting -> spin lock:
 Soluzioni senza busy waiting:
 
 - `sleep` e `wakeup`: rispettivamente, addormentano un processo portandolo nello stato blocked, o lo svegliano portandolo nello stato ready.
-- Semafori con `down` e `up`.
+- Semafori con `down` e `up`, tra cui:
+    - Semafori numerici per contare.
+    - Mutex, per sincronizzare.
+        - Futex, per un'implementazione migliore (*Fast User-Space Mutex*).
+- Monitor, gestione della sincronizzazione e della concorrenza svolta dal compilatore/interprete.
+- Variabili condizionali per migliorare la sincronia.
+- Approccio orientato ai messaggi, con strategia Rendezvous o Mailbox. 
