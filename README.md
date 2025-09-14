@@ -1,1 +1,1 @@
-# Repo per appunti di Sistemi Operativi (teoria)
+# repo per appunti e codici di sistemi operativi
