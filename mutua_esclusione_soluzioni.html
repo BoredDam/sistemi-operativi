@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<! -- MADE WITH Markdown-previewer, made by Paolo Volpini and Damiano Trovato, https://github.com/paolovolpini/Markdown-previewer -->
+<html lang="it">
+<head>
+<style>
+html *:not(mjx-container):not(mjx-container *) {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #1a1024;
+    color: #f5e9ff;
+    margin: 20px;
+}
+
+h1, h2, h3 {
+    color: #d4b3ff;
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    color: #ffeaa7;
+    background-color: #2d1b3d;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid #5e3370;
+}
+
+pre {
+    display: block;
+    padding: 12px;
+    overflow-x: auto;
+    background-color: #2d1b3d;
+    border-radius: 14px;
+    border: 1px solid #5e3370;
+}
+
+pre code {
+    border: none;
+    padding: 0;
+    background: transparent;
+    font-size: inherit;
+    color: inherit;
+}
+
+</style>
+	<meta charset="utf-8">	<title> your preview </title>
+</head>
+<h1> Soluzioni per la mutua esclusione</h1>
+  <p>La mutua esclusione è fondamentale per regolare l'accesso alle aree critiche da parte dei vari flussi di esecuzione di processi o thread: il fine ultimo, è quello di evitare le corse critiche, note anche come race condition. </p>
+ <h3> Regole per una buona soluzione alle race condition</h3>
+  <ol>
+	<li>  Mutua esclusione - ovviamente. </li>
+	<li>  Nessuna assunzione su velocità e numero di CPU - deve essere valida su qualsiasi sistema. </li>
+	<li>  Nessun processo fuori dalla propria sezione critica può bloccare altri processi - non ottimale. </li>
+	<li>  Nessun processo può stare all'infinito in attesa d'entrare nella propria sezione critica. </li>
+ </ol>
+<h2> 1 - Inibizione degli interrupt</h2>
+  <p>Questa soluzione funziona solo nei contesti a singolo processore. </p>
+ <p>Gli interrupt sono la condizione principale per cui un processo \(P_2\) potrebbe intervenire durante l'esecuzione di un'area critica da parte di un processo \(P_1\). In particolar modo, ci riferiamo all'interrupt del clock hardware di sistema, che si occupa della prelazione. </p>
+ <p>Pro di questa soluzione: <ul>
+	<li>  È semplice. <code>enter_region()</code> ed <code>exit_region()</code> delimitano le aree critiche. La prima disabilita gli interrupt, la seconda li riabilita. </li>
+</p>
+ 	<li>  Disabilitare la prelazione garantisce che non ci sia modo alcuno di interrompere il processo nella sua area critica, minimizzando i tempi di uscita da quest'ultima </li>
+ </ul>
+<p>Contro di questa soluzione: <ul>
+	<li>  Non funziona nei sistemi multiprocessore: inibire gli interrupt di una CPU influenza solo ed esclusivamente quella CPU. </li>
+</p>
+ 	<li>  Disabilitare gli interrupt è generalmente un'operazione rischiosa, e soprattutto una grande responsabilità affidata a dei programmatori inaffidabili 💀. </li>
+ 	<li>  In particolar modo, gli interrupt devono essere gestiti piuttosto tempestivamente, in quanto il loro accumularsi potrebbe causare la perdita di questi (tra cui segnali da dispositivi di I/O). </li>
+  </ul>
+<p>A livello Kernel. I programmatori del Sistema Operativo hanno modo di valutare quando disabilitare gli interrupt può essere una buona soluzone di basso livello, e soprattutto sicura. </p>
+  <h2> 2 - Variabili di lock</h2>
+  <p>Non funziona.  </p>
+ <p>Una variabile di lock con valore 1 se la risorsa è in uso, e 0 se è libera. Può causare race-condition sulla variabile stessa, dando risultati anomali. Non è una soluzione valida. </p>
+ <p>Fa inoltre uso di busy-waiting, consumando inutilmente tempo nella CPU. </p>
+ <h2> 3 - Alternanza stretta</h2>
+  <p>Funziona, ma è troppo rigida e viola una delle condizioni poste. </p>
+ <p>Si assegna un ID ad ogni processo. </p>
+ <ul>
+	<li>  <code>enter_region(int process)</code> verifica una variabile <code>turn</code>: se questa coincide con l'ID del processo che vuole entrare nella sezione critica, va tutto bene, altrimenti aspetta (busy waiting). </li>
+ 	<li>  <code>leave_region(int process)</code> una sola istruzione: assegna alla variabile <code>turn</code> il valore del prossimo processo. </li>
+ </ul>
+<div>
+<pre>
+	<code> 
+int N = 2; 
+int turn; 
+ 
+void enter_region(int process) { 
+    while (turn != process) { 
+        /do nothing/ 
+    } 
+} 
+ 
+void exit_region(int process) { 
+    turn = 1 - process /passa il testimone/ 
+} 
+	</code>
+</pre>
+</div>
+  <p>Questa soluzione funziona, ma viola la condizione tre per la realizzazione di una soluzione valida alle race condition. In generale, è veramente troppo rigida. </p>
+ <h2> 4 - Soluzione di Peterson</h2>
+  <p>È stata invalidata dai sistemi multicore moderni che riordinano gli accessi in memoria. È inoltre, scalare la soluzione a più di due processi aumenta la complessità della soluzione. Tanto per cambiare, fa uso di busy waiting. </p>
+ <ul>
+	<li>  <code>enter_region(int process)</code>: il processo si dichiara interessato nel proprio slot dell'array, e imposta <code>turn = process</code>. Se più processi sono interessati, solo quello che è riuscito a impostare <code>turn == process</code> </li>
+ 	<li>  <code>exit_region(int process)</code>: il processo si dichiara non interessato. </li>
+   </ul>
+<div>
+<pre>
+	<code> 
+int N = 2; // numero di processi 
+int turn; 
+bool interested[N]; 
+ 
+void enter_region(int process) { 
+    other = 1 - process; 
+    interested[process] = true; 
+    turn = process 
+    while (interested[other] == true && turn == process) {  
+        / se la prima condizione è true, la seconda condizione è  
+        fondamentale per capire chi ha vinto la "contesa" della zona critica / 
+ 
+        / also, do nothing / 
+    } 
+} 
+ 
+void exit_region(int process) { 
+    interested[process] = false; 
+} 
+	</code>
+</pre>
+</div>
+ <p>Pro. <ul>
+	<li>  Non rigida. </li>
+</p>
+ </ul>
+<p>Contro. <ul>
+	<li>  Non funziona nei sistei moderni. </li>
+	<li>  Difficilmente scalabile. </li>
+	<li>  Busy waiting. </li>
+</p>
+ </ul>
+<h2> 5 - TSL o XCHG</h2>
+  <p>Si introduce una nuova istruzione atomica, Test-And-Set-Lock. </p>
+ <p>La TSL consiste in: </p>
+ <div>
+<pre>
+	<code> 
+MOV REGISTER, LOCK 
+MOV LOCK, #1 
+	</code>
+</pre>
+</div>
+ <p>ossia, due istruzioni atomiche. La TSL blocca temporaneamente l'accesso al bus in memoria durante l'operazione di fetch e store, in modo che la prima <code>MOV</code> non venga eseguita da più processi.  </p>
+ <p>La nostra soluzione per la concorrenza, usa la TSL nel seguente modo. </p>
+ <div>
+<pre>
+	<code> 
+enter_region: 
+    TSL REGISTER, LOCK 
+    CMP REGISTER, #0 
+    JNE enter_region 
+    RET 
+ 
+leave_region: 
+    MOV LOCK, #0 
+    RET 
+	</code>
+</pre>
+</div>
+  <p>Infatti, la TSL è solo un'istruzione che viene usata nella nostra soluzione, e non è la soluzione vera e propria. </p>
+ <p>In altre architetture (Intel x86), un'istruzione equivalente è la <code>XCHG</code>. </p>
+ <div>
+<pre>
+	<code> 
+enter_region: 
+    MOV REGISTER, #1 
+    XCHG REGISTER, LOCK 
+    RET 
+ 
+leave_region: 
+    MOV LOCK, #0 
+    RET 
+	</code>
+</pre>
+</div>
+  <p>Questa soluzione può essere usata anche a livello utente, ma si predilige, nei sistemi multi-core, a operazioni a livello kernel. </p>
+ <p>Nei sistemi mono-core, si usa l'inibizione degli interrupt (ma sempre e solo a livello kernel...). </p>
+ <h2> 6 - Sleep e Wake-up</h2>
+  <p>Per evitare lo spreco di CPU causato dal busy-waiting, ma anche il problema dell'inversione di priorità, l'OS offre primitive di comunicazione tra processi che permettono di portare un processo nello stato <code>blocked</code>, invece che di portarlo in una attesa attiva. </p>
+ <p>Un esempio sono proprio le istruzioni <code>sleep</code> e <code>wakeup</code>. </p>
+ <ul>
+	<li>  <code>sleep</code> sospende l'esecuzione del chiamante. Questo potrà tornare ad avere la CPU solo quando sarà risvegliato. Manderà il processo nello stato <code>blocked</code>. </li>
+ 	<li>  <code>wakeup</code> sveglia un processo, facendolo tornare nello stato <code>ready</code>. </li>
+ </ul>
+<h2> 7 - Semafori</h2>
+  <p>I semafori rappresentano un'evoluzione del meccanismo di sincronizzazione di <code>sleep</code> <code>wakeup</code>. Rimuovono busy-waiting, e offrono sincronizzazione. </p>
+ <p>Consistono in una variabile intera unsigned condivisa, che offre due operazioni fondamentali: </p>
+ <ul>
+	<li>  <code>up(S)</code>: incrementa il valore di <code>S</code>. </li>
+	<li>  <code>down(S)</code>: decrementa il valore di <code>S</code>. Se <code>S=0</code>, la <code>down(S)</code> diventa bloccante. </li>
+ </ul>
+<p>L'uso di <code>down</code> e <code>up</code> non genera race condition sulla variabile <code>S</code> in quanto le operazioni sono atomiche. L'atomicità è ottenuta tramite: <ul>
+	<li>  in sistemi single-core -> disabilitazione degli interrupt. </li>
+	<li>  in sistemi multi-core -> istruzioni atomiche <code>TSL</code> e <code>XCHG</code>. </li>
+</p>
+ </ul>
+<p>I semafori sono implementati, solitamente, senza busy waiting. Ciò viene fatto tramite una lista di processi bloccati. </p>
+ <h2> 7.1 - Semafori binari - Mutex</h2>
+  <p>I semafori binari assumono valori 0-1. Versione semplificata del semaforo (binario) che gestisce mutua esclusione, senza bisogno di contare le risorse disponibili.  </p>
+ <h2> 7.2 - Futex</h2>
+  <p>Alcuni sistemi operativi supportano dei mutex livello utente (Fast User-Space Mutex). </p>
+ <p>I futex gestiscono la situazione, per quanto possibile, in modalità utente. La contesa avviene in modalità utente con le istruzioni TSL/XCHG, e il kernel interviene solo in caso di bloccaggio. </p>
+ <p>Si prende quindi il meglio dello spazio utente e dello spazio kernel: </p>
+ <ul>
+	<li>  Lo spazio utente gestisce la contesa delle zone critiche. Non si chiama il kernel per verificare se una zona critica è occupata. </li>
+	<li>  Il kernel blocca e risveglia thread, e gestisce una coda di thread bloccati. </li>
+ </ul>
+<p>La libreria <code>pthreads</code> implementa i mutex proprio in questo modo. </p>
+  <h2> 8 - Monitor</h2>
+  <p>È un costrutto di alto livello offerto da alcuni linguaggi.  È un tipo di dato astratto, contenente dati e metodi, che offre dei vincoli sui dati. Le specifiche sul monitor sono relative al linguaggio, ed è il compilatore (o interprete) a renderle tali.  </p>
+ <p>Il programmatore (che può commettere errori), tramite i monitor delega al compilatore (o interprete) la responsabilità di usare le primitive di sincronizzazione sottostanti. </p>
+ <ul>
+	<li>  Le strutture dati del monitor sono private. </li>
+	<li>  I metodi interni al monitor sono sempre eseguiti in mutua esclusione. </li>
+ </ul>
+<p>Un thread che sta eseguendo un metodo interno al monitor, è detto "dentro al monitor". </p>
+ <p>I monitor offrono pure la possibilità di gestire delle variabili condizione: queste permettono di gestire e sicronizzare degli eventi, tramite opportuni metodi <code>wait(cond)</code>, <code>signal(cond)</code>. </p>
+ <ul>
+	<li>  <code>wait(cond)</code>: il processo viene inserito in una coda associata all'evento <code>cond</code>. </li>
+	<li>  <code>signal(cond)</code>: rende attivo un processo della coda associata all'evento <code>cond</code>. Non ha effetti se questa è vuota. </li>
+  </ul>
+<h2> 9 - Scambio di messaggi</h2>
+ <p>Non è un aprroccio di sincronizzazione, tanto più di IPC. È un approccio basato su messaggi: i processi si scambiano messaggi tramite due primitive: </p>
+ <ul>
+	<li>  <code>receive(sorgente, messaggio)</code>: è una chiamata bloccante fino all'arrivo del messaggio. </li>
+	<li>  <code>send(destinazione, messaggio)</code>: può essere bloccante se il messaggio non viene ricevuto, quando non si utilizzanoun buffer. </li>
+ </ul>
+<p>Sono approcci molto costosi. </p>
+ <h2> 9.1 Rendezvous</h2>
+  <p>Strategia senza buffer. </p>
+ <h2> 9.2 Mailbox</h2>
+  <p>Usa un buffer per messaggi: quando il buffer è pieno, il processo che esegue send viene bloccato fino a quando non c'è posto. </p>
+  <h2> Recap</h2>
+  <ul>
+	<li>  Inibire gli interrupt: funziona in sistemi monoprocessore. </li>
+ </ul>
+<p>Soluzioni con busy waiting -> spin lock: </p>
+ <ul>
+	<li>  Variabile di lock: non funziona. </li>
+	<li>  Alternanza stretta: funziona, ma è rigida e viola la condizione 3. </li>
+	<li>  Soluzione di Peterson: nei sistemi moderni non funziona. </li>
+	<li>  TSL e XCHG: ottima soluzione a livello kernel, fa ancora uso di busy waiting. </li>
+ </ul>
+<p>Soluzioni senza busy waiting: </p>
+ <ul>
+	<li>  <code>sleep</code> e <code>wakeup</code>: rispettivamente, addormentano un processo portandolo nello stato blocked, o lo svegliano portandolo nello stato ready. </li>
+	<li>  Semafori con <code>down</code> e <code>up</code>, tra cui: </li>
+    - Semafori numerici per contare.     - Mutex, per sincronizzare.         - Futex, per un'implementazione migliore (Fast User-Space Mutex). 	<li>  Monitor, gestione della sincronizzazione e della concorrenza svolta dal compilatore/interprete. </li>
+	<li>  Variabili condizionali per migliorare la sincronia. </li>
+</html>

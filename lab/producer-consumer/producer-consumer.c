@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <stdbool.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include "lib-misc.h"
 
+/*
+this is an implementation of the producer-consumer problem, solved using semaphores.
+I decided to use a function-oriented approach, to grant that every operation is safe from race-conditions.
+It uses the unofficial "lib-misc.h" library by the Professor M. Di Raimondo for error handling.
+BoredDam, 14 september 2025.
+*/
 #define BUF_SIZE 10
 
 
