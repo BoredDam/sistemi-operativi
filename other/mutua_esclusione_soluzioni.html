@@ -92,12 +92,12 @@ int turn;
  
 void enter_region(int process) { 
     while (turn != process) { 
-        /do nothing/ 
+        /*do nothing*/ 
     } 
 } 
  
 void exit_region(int process) { 
-    turn = 1 - process /passa il testimone/ 
+    turn = 1 - process /*passa il testimone*/ 
 } 
 	</code>
 </pre>
@@ -121,10 +121,10 @@ void enter_region(int process) {
     interested[process] = true; 
     turn = process 
     while (interested[other] == true && turn == process) {  
-        / se la prima condizione è true, la seconda condizione è  
-        fondamentale per capire chi ha vinto la "contesa" della zona critica / 
+        /*se la prima condizione è true, la seconda condizione è  
+        fondamentale per capire chi ha vinto la "contesa" della zona critica*/ 
  
-        / also, do nothing / 
+        /*also, do nothing*/ 
     } 
 } 
  
