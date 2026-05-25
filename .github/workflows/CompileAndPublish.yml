@@ -37,7 +37,7 @@ jobs:
         with:
           tag_name: latest
           name: Latest version # Release name
-          files: computabilita-e-complessita.pdf # Output PDF name
+          files: sistemi-operativi.pdf # Output PDF name
           body: "Automatically compiled from commit ${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
