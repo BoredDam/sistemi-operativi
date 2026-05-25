@@ -1,0 +1,43 @@
+name: Build and release LaTeX PDF
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@v6
+
+      - name: LaTeX Compile
+        uses: xu-cheng/latex-action@v4
+        with:
+          working_directory: latex-src-and-images
+          root_file: main.tex
+
+      - name: Rename pdf
+        run: mv latex-src-and-images/main.pdf sistemi-operativi.pdf
+
+      - name: Delete old Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --cleanup-tag --yes || true
+          git push origin :refs/tags/latest || true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: latest
+          name: Latest version # Release name
+          files: computabilita-e-complessita.pdf # Output PDF name
+          body: "Automatically compiled from commit ${{ github.sha }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
