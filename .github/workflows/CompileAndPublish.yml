@@ -25,13 +25,6 @@ jobs:
       - name: Rename pdf
         run: mv latex-src-and-images/main.pdf sistemi-operativi.pdf
 
-      - name: Delete old Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release delete latest --cleanup-tag --yes || true
-          git push origin :refs/tags/latest || true
-
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
