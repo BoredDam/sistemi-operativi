@@ -348,7 +348,7 @@ Ritorna un exit status.
 
 \item \textbf{Errore critico (involontario).}\\
 È un meccanismo automatico che scatta quando il processo cerca di eseguire azioni anomale o illegali, come violazioni relativi allo spazio di indirizzamento (tentativo di scrittura in zone read-only), divisioni per zero, etc..\\ In quel caso, l'hardware fa scattare un'eccezione, causando un'interruzione del processo.\\
-In questo caso, non avviene un tentativo di recoveri.
+In questo caso, non avviene un tentativo di recovery.
 
 \item \textbf{Terminato da un altro processo (involontario)}
 Avviene quando un processo \textbf{richiede} la terminazione di un altro processo.
@@ -454,7 +454,7 @@ In generale, le PCB contengono tutto ciò che possa servire allo \textbf{schedul
 \end{figure}
 
 \subsection{Scheduler}
-È il componente del Kernel che sceglie quale processo deve essere eseguito, dalla coda dei processi pronti. La scelta del processo da eseguire in un determinato istante non è banale, e stabilire le proprietà variano spesso dal sistema (personal computer, sistemi real-time, batch e HPC avranno priorità differenti).
+È il componente del Kernel che sceglie quale processo deve essere eseguito, dalla coda dei processi pronti. La scelta del processo da eseguire in un determinato istante non è banale, e le priorità stabilite variano spesso dal sistema (personal computer, sistemi real-time, batch e HPC avranno priorità differenti).
 
 \newpage
 
@@ -657,7 +657,7 @@ Detto anche "modello 1-a-1". Sfrutta le possibilità del sistema operativo. La t
 \end{figure}
 
 \subsection{Vantaggi di questo modello}
-In questo modello, una chiamata bloccante può bloccare un solo e unico thread, eliminando la più grande criticità dei Kernel a livello utente!
+In questo modello, una chiamata bloccante agisce su un solo e unico thread, eliminando la più grande criticità dei Thread a livello utente!
 
 \subsection{Svantaggi}
 
@@ -720,7 +720,7 @@ Naturalmente questi tre aspetti sono isolati, ma in questo modo è possibile con
     Nel modello pipe, $P_n$ non può comunicare con $P_{n-1}$. I processi avvengono in maniera lineare e unidirezionale. \\
     I dati non sono propriamente condivisi, il che è molto limitante.\\
     \textbf{Una soluzione: segmento di memoria condiviso.}\\
-    Un approccio ideale è quello con un segmento di memoria condiviso: gestito in maniera opporta il coordinamento delle operazioni, è possibile condividere le risosrse sfruttando uno spazio di memoria condiviso d'appoggio.
+    Un approccio ideale è quello con un segmento di memoria condiviso: gestito in maniera opportuna il coordinamento delle operazioni, è possibile condividere le risosrse sfruttando uno spazio di memoria condiviso d'appoggio.
     \item \textbf{Accavallamento delle operazioni su dati comuni.}\\
     L'accesso alle risorse comuni deve essere gestito in maniera opportuna.
 
@@ -773,7 +773,8 @@ Le race condition gestite in maniera inopportuna, causano anomalie nei risultati
 \end{figure}
 
 \subsection{Definire le sezioni critiche nel programma}
-Le sezioni critiche sono individuate dal pprogrammatore: solitamente, è consono definire sezioni critiche differenti per strutture dati indipendenti. Dati $n$ processi, e due strutture dati $H$ e $T$ (indipendenti tra loro) è opportuno definire delle sezioni critiche su $H$ e delle sezioni critiche su $T$, facendo in mdo
+Le sezioni critiche sono individuate dal programmatore: solitamente, è consono definire sezioni critiche differenti per strutture dati indipendenti. 
+Dati $n$ processi, e due strutture dati $H$ e $T$ (indipendenti tra loro) è opportuno definire delle sezioni critiche su $H$ e delle sezioni critiche su $T$, facendo in modo che in ciascuna delle sezioni critiche di $H$ e di $T$, entri al più uno degli $n$ processi (o thread).
 
 \subsection{Com'è fatta una buona soluzione per race condition?}
 
@@ -814,7 +815,7 @@ Le isruzioni che avvengono all'interno della sezione critica a interrupt disabil
 
 \subsection{Pro di questa soluzione}
 
-\paragraph{Questa soluzione funziona} E non è cosa da poco! Molte delle intuizioni che vedremo in avanti, non portano alle conclusioni sperate. È inoltre concettualmente molto semplice.
+\paragraph{Questa soluzione funziona} E non è cosa da poco! Molte delle intuizioni che vedremo in avanti, non portano alle conclusioni sperate. È, inoltre, una soluzione concettualmente molto semplice.
 
 \subsection{Contro di questa soluzione}
 Tuttavia, questa soluzione presenta anche un insieme di criticità non indifferenti
@@ -1017,7 +1018,7 @@ Tenendo bene a mente che i processi operano in maniera \textbf{concorrente}, ecc
 
     \item Il produttore sarà l'unico in funzione, il quale continuerà a inserire elementi del buffer.
 
-    \item Riempito il buffer, il produttore si addormenterà. Entrambigli attori si sono addormentati.
+    \item Riempito il buffer, il produttore si addormenterà. Entrambi gli attori si sono addormentati.
 \end{enumerate}
 
 \subsection{Soluzione che potrebbe funzionare?}
@@ -1054,7 +1055,7 @@ Per fare in modo che sia così, possiamo sfruttare:
 Applicazioni differenti del semaforo, prendono nomi differenti. 
 
 \paragraph{Semaforo numerico} È un semaforo cui $S$ assume valori  $\in \{0,1,\dots,N\}$. Si presta ai problemi di conteggio delle risorse, bloccando il thread quando questo esaurisce la risorsa che conta. Nel problema produttore-consumatore, lo usiamo per contare il numero di slot liberi e vuoti. In questo modo, un produttore che cerca di inserire su un buffer pieno, o un consumatore che cerca di estrarre da un buffer vuoto, verranno bloccati.
-\paragraph{Semaforo Mutex} È un semaforo cui $S$ assume valori da $\in  \{0,1\}$. Viene usato per garantire mutua esclusione nell'accesso a una determinata zona critica.
+\paragraph{Semaforo Mutex} È un semaforo cui $S$ assume valori $\in  \{0,1\}$. Viene usato per garantire mutua esclusione nell'accesso a una determinata zona critica.
 La \verb|enter_region| coinciderà con l'utilizzo di \verb|wait(M)|. La \verb|leave_region| coinciderà con l'utilizzo di \verb|signal(M)|.
 
 \newpage
@@ -1119,7 +1120,7 @@ Sono un tipo di dato astratto contenenti dati e metodi. All'interno degli oggett
     \item Tutti i metodi del monitor sono eseguiti in mutua esclusione.
 \end{itemize}
 
-Queste garanzie sono offerte dal linugaggio di programmazione (che si occupa di implementare questi monitor), facilitando il lavoro del programmatore, e assicurando che, in qualsiasi istante, solo un thread sia nel monitor.
+Queste garanzie sono offerte dal linguaggio di programmazione (che si occupa di implementare questi monitor), facilitando il lavoro del programmatore, e assicurando che, in qualsiasi istante, solo un thread sia nel monitor.
 Questi sistemi offrono non solo una gestione della mutua esclusione (eventuali blocchi del sistema), ma anche una gestione della sincronizzazione tra i metodi.
 
 \subsubsection{Signal e wait}
@@ -1633,7 +1634,7 @@ Approccio più utilizzato dai sistemi operativi attuali. Ogni processore ha lo s
     \item \textbf{Coda unificata.}\\
     Implica la necessità di avere un lock. Ogni volta che lo scheduler di un core pescherà un processo dalla coda, verrà posto un lock sulla struttura dati fino a \\fine operazione. Questo porterà scheduler concorrenti a mettersi in coda. Il bilanciamento del carico non sarà richiesto.
     \item \textbf{Code separate.}\\
-    Code separate per scheduler di core separati, è la soluzione più usata. Non ci obbliga ad usare lock, anche se effettivamente sono richiesti (scopriremo più avanti il perché). Le code separate favoriscono la prelidezione: indica la probabilità che un core si occupi più volte dello stesso processo (in momenti diversi). Questo ha come vantaggio un alto numero di cache hit, sempre ben accetti. Tuttavia, verificare e gestire il bilanciamento del carico nei vari core diventa obbligatorio. 
+    Code separate per scheduler di core separati, è la soluzione più usata. Non ci obbliga ad usare lock, anche se effettivamente sono richiesti (scopriremo più avanti il perché). Le code separate favoriscono la predilezione: indica la probabilità che un core si occupi più volte dello stesso processo (in momenti diversi). Questo ha come vantaggio un alto numero di cache hit, sempre ben accetti. Tuttavia, verificare e gestire il bilanciamento del carico nei vari core diventa obbligatorio. 
 \end{itemize}
 
 \subsection{Politiche di scheduling}
@@ -2031,7 +2032,7 @@ La ricerca in maniera parallela tramite hardware specializzato (in tempo costant
 
 \subsection{Osservazioni importanti}
 \begin{itemize}
-    \item Alcuni attributi dei record delle tabelle delle pagine non sono presenti, come il bit di referenzialmento o di valitidà di allocazione.\\
+    \item Alcuni attributi dei record delle tabelle delle pagine non sono presenti, come il bit di referenzialmento o di validità di allocazione.\\
     Osserviamo che, se un record è presente nella TLB, dev'essere per forza valido e referenziato.
 
     \item La TLB conterrà sempre record relativi a pagine utili per il programma attuale. Inoltre, quando avviene una TLB miss, si andrà ad aggiornare il valore sulla TLB.
