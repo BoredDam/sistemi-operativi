@@ -657,7 +657,7 @@ Detto anche "modello 1-a-1". Sfrutta le possibilità del sistema operativo. La t
 \end{figure}
 
 \subsection{Vantaggi di questo modello}
-In questo modello, una chiamata bloccante può bloccare un solo e unico thread, eliminando la più grande criticità dei Kernel a livello utente!
+In questo modello, una chiamata bloccante agisce su un solo e unico thread, eliminando la più grande criticità dei Thread a livello utente!
 
 \subsection{Svantaggi}
 
@@ -773,7 +773,8 @@ Le race condition gestite in maniera inopportuna, causano anomalie nei risultati
 \end{figure}
 
 \subsection{Definire le sezioni critiche nel programma}
-Le sezioni critiche sono individuate dal programmatore: solitamente, è consono definire sezioni critiche differenti per strutture dati indipendenti. Dati $n$ processi, e due strutture dati $H$ e $T$ (indipendenti tra loro) è opportuno definire delle sezioni critiche su $H$ e delle sezioni critiche su $T$, facendo in mdo
+Le sezioni critiche sono individuate dal programmatore: solitamente, è consono definire sezioni critiche differenti per strutture dati indipendenti. 
+Dati $n$ processi, e due strutture dati $H$ e $T$ (indipendenti tra loro) è opportuno definire delle sezioni critiche su $H$ e delle sezioni critiche su $T$, facendo in modo che in ciascuna delle sezioni critiche di $H$ e di $T$, entri al più uno degli $n$ processi (o thread).
 
 \subsection{Com'è fatta una buona soluzione per race condition?}
 
