@@ -4,4 +4,7 @@ Questa repository contiene i miei appunti personali del corso di Sistemi Operati
 Contiene tutti gli argomenti trattati nel corso, assieme a qualche codice di esempio, e qualche file markdown (renderizzati anche in html per facilitarne la lettura)
 relativo a qualche argomento specifico.
 
+## Per scaricare gli appunti
+Vai nella sezione "releases" per scaricare il .pdf compilato, aggiornato all'ultima versione.
+
 Si ringrazia [@Giuseppe-Tornello](https://github.com/Giuseppe-Tornello) per l'aggiunta del workflow per la compilazione automatica del file .tex
