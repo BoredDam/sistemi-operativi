@@ -783,7 +783,7 @@ Dati $n$ processi, e due strutture dati $H$ e $T$ (indipendenti tra loro) è opp
     
     \item \textbf{Nessuna assunzione sulla velocità} di esecuzione o sul numero di CPU.
     
-    \item\textbf{ Nessun processo fuori dalla propria sezione critica può bloccare altri processi}.
+    \item\textbf{Nessun processo fuori dalla propria sezione critica può bloccare altri processi}.
 
     \item \textbf{Nessun processo dovrebbe restare all'infinito in attesa} di entrare nella propria zona critica. Dovrebbe essere garantito un tempo massimo di attesa. Con ciò, non intendiamo introdurre un timer di time-out, ma piuttosto dobbiamo avere delle garanzie relative al tempo  che un processo dovrà aspettare prima di entrare nella zona critica. Questo, dovrà essere un tempo \textbf{finito}. 
 \end{itemize}
@@ -913,7 +913,7 @@ Ciò avviene tramite un'istruzione ausiliaria: \verb|TSL| o \verb|XCHG| (ossia T
 \subsection{Test and Set Lock}
 È un'istruzione che, in maniera atomica, permette di testare e impostare la variabile di lock.
 
-L'istruzione \verb|TSL| prende due argomenti. Ricopia il valore della variabile \verb|LOCK| all'interno di \verb|REGISTER|, e poi impostare \verb|LOCK| a 1. Rende atomiche due operazioni di \verb|MOV|. Questo è il comportamento delle funzioni di \verb*|enter_region| e \verb*|leave_region|:
+L'istruzione \verb|TSL| prende due argomenti. Ricopia il valore della variabile \verb|LOCK| all'interno di \verb|REGISTER|, per poi impostare \verb|LOCK| a 1. Rende atomiche due operazioni di \verb|MOV|. Questo è il comportamento delle funzioni di \verb*|enter_region| e \verb*|leave_region|:
 
 \begin{verbatim}
 enter_region:
@@ -930,7 +930,7 @@ leave_region:
 \end{verbatim}
 
 \paragraph{Perché funziona?}
-Questo offre una garanzia rispetto alla prelazione: un'istruzione atomica può arriva o prima, o dopo la prelazione. La prelazione non può scindere un'istruzione atomica. Questa istruzione \textbf{blocca per qualche istante il bus di memoria}. CHiaramente, la TSL è \textit{solo} un'istruzione ausiliaria, il resto è fatto da \verb*|enter_region| e \verb*|leave_region|.
+Questo offre una garanzia rispetto alla prelazione: un'istruzione atomica può arriva o prima, o dopo la prelazione. La prelazione non può scindere un'istruzione atomica. Questa istruzione \textbf{blocca per qualche istante il bus di memoria}. Chiaramente, la TSL è \textit{solo} un'istruzione ausiliaria, il resto è fatto da \verb*|enter_region| e \verb*|leave_region|.
 
 \paragraph{Funziona, ma fa uso di busy waiting}
 È una soluzione che funziona su architetture moderne, funziona in modalita utente, e \textbf{in sistemi multicore} ma fa ancora uso di \textbf{busy waiting}.
